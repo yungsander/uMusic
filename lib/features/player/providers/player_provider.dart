@@ -5,6 +5,8 @@ import 'package:on_audio_query/on_audio_query.dart';
 class PlayerProvider extends ChangeNotifier {
   final AudioPlayer _player = AudioPlayer();
   List<SongModel> _queue = [];
+  int _loadId = 0;
+  bool _loading = false;
 
   SongModel? current;
   bool isPlaying = false;
@@ -19,12 +21,22 @@ class PlayerProvider extends ChangeNotifier {
       isPlaying = state.playing;
       notifyListeners();
     });
+
     _player.currentIndexStream.listen((index) {
+      // Durante la carga se ignoran los cambios de índice intermedios
+      if (_loading) return;
       if (index != null && index < _queue.length) {
         current = _queue[index];
         notifyListeners();
       }
     });
+
+    _player.playbackEventStream.listen(
+      (_) {},
+      onError: (Object e, StackTrace st) {
+        debugPrint('Error del reproductor: $e');
+      },
+    );
   }
 
   AudioSource _source(SongModel s) {
@@ -33,6 +45,8 @@ class PlayerProvider extends ChangeNotifier {
   }
 
   Future<void> playQueue(List<SongModel> songs, int index) async {
+    final id = ++_loadId;
+    _loading = true;
     _queue = songs;
     current = songs[index];
     notifyListeners();
@@ -41,9 +55,16 @@ class PlayerProvider extends ChangeNotifier {
         songs.map(_source).toList(),
         initialIndex: index,
       );
+      if (id != _loadId) return;
+      current = songs[index];
+      notifyListeners();
       await _player.play();
+    } on PlayerInterruptedException {
+      // Empezó otra carga: se ignora
     } catch (e) {
-      debugPrint('error al reproducir: $e');
+      debugPrint('Error al reproducir: $e');
+    } finally {
+      if (id == _loadId) _loading = false;
     }
   }
 

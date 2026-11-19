@@ -7,21 +7,21 @@ class AppColors {
   static const aqua = Color(0xFF1CC0D4);
   static const seaGreen = Color(0xFF5CCB7A);
 
-  static const background = skyTop;
-  static const surface = Color(0x33FFFFFF); // blanco 20%
-  static const border = Color(0x66FFFFFF); // blanco 40%
-  static const textPrimary = Color(0xFFFFFFFF);
-  static const textSecondary = Color(0xCCFFFFFF); // blanco 80%
-  static const primary = Color(0xFF8BE04E); // verde lima
+  static const background = Color(0xFFEAF9F5);
+  static const surface = Color(0x80FFFFFF); // blanco 50%
+  static const border = Color(0x2E0B3C5D); // azul oscuro 18%
+  static const textPrimary = Color(0xFF0B3C5D);
+  static const textSecondary = Color(0xB30B3C5D);
+  static const primary = Color(0xFF1FA463); // verde
 }
 
 ThemeData buildLightTheme() {
   final base = ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
+    brightness: Brightness.light,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.skyMid,
-      brightness: Brightness.dark,
+      seedColor: AppColors.aqua,
+      brightness: Brightness.light,
       primary: AppColors.primary,
     ),
     scaffoldBackgroundColor: Colors.transparent,
@@ -32,6 +32,7 @@ ThemeData buildLightTheme() {
       bodyColor: AppColors.textPrimary,
       displayColor: AppColors.textPrimary,
     ),
+    iconTheme: const IconThemeData(color: AppColors.textPrimary),
     dividerColor: AppColors.border,
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,

@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../widgets/aero.dart';
 
 class SongTile extends StatelessWidget {
   final SongModel song;
@@ -32,73 +33,72 @@ class SongTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      child: InkWell(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+      child: GlassTile(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          decoration: BoxDecoration(
-            color: isCurrent ? AppColors.surface : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              QueryArtworkWidget(
-                id: song.id,
-                type: ArtworkType.AUDIO,
-                keepOldArtwork: true,
-                artworkWidth: 48,
-                artworkHeight: 48,
-                artworkBorder: BorderRadius.circular(10),
-                nullArtworkWidget: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    border: Border.all(color: AppColors.border),
-                    borderRadius: BorderRadius.circular(10),
+        highlighted: isCurrent,
+        padding: const EdgeInsets.fromLTRB(10, 10, 16, 10),
+        child: Row(
+          children: [
+            QueryArtworkWidget(
+              id: song.id,
+              type: ArtworkType.AUDIO,
+              size: 150,
+              keepOldArtwork: true,
+              artworkWidth: 46,
+              artworkHeight: 46,
+              artworkBorder: BorderRadius.circular(14),
+              nullArtworkWidget: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: const Color(0x99FFFFFF),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: const Icon(
+                  Icons.music_note_outlined,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    song.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                  child: const Icon(Icons.music_note_outlined,
-                      color: AppColors.textSecondary),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      song.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: isCurrent
-                            ? AppColors.primary
-                            : AppColors.textPrimary,
-                      ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _artist,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      color: AppColors.textSecondary,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      _artist,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 13, color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Text(
-                _format(song.duration),
-                style: const TextStyle(
-                    fontSize: 13, color: AppColors.textSecondary),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              _format(song.duration),
+              style: const TextStyle(
+                fontSize: 12.5,
+                color: AppColors.textSecondary,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
