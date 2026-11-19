@@ -25,10 +25,11 @@ class PlayerProvider extends ChangeNotifier {
     _player.currentIndexStream.listen((index) {
       // Durante la carga se ignoran los cambios de índice intermedios
       if (_loading) return;
-      if (index != null && index < _queue.length) {
-        current = _queue[index];
-        notifyListeners();
-      }
+      if (index == null || index >= _queue.length) return;
+      // Descarta eventos atrasados que ya no coinciden con el reproductor
+      if (index != _player.currentIndex) return;
+      current = _queue[index];
+      notifyListeners();
     });
 
     _player.playbackEventStream.listen(
@@ -57,8 +58,13 @@ class PlayerProvider extends ChangeNotifier {
       );
       if (id != _loadId) return;
       current = songs[index];
+      _loading = false;
       notifyListeners();
-      await _player.play();
+
+      // Sin await: play() solo termina cuando la reproducción se pausa o acaba
+      _player.play().catchError((Object e) {
+        debugPrint('Error al reproducir: $e');
+      });
     } on PlayerInterruptedException {
       // Empezó otra carga: se ignora
     } catch (e) {
