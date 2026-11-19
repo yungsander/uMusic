@@ -5,6 +5,7 @@ import '../providers/library_provider.dart';
 import '../widgets/song_tile.dart';
 import '../../../widgets/mini_player.dart';
 import '../../player/providers/player_provider.dart';
+import '../../../widgets/aero.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
