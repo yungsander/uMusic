@@ -61,7 +61,6 @@ class PlayerProvider extends ChangeNotifier {
       _loading = false;
       notifyListeners();
 
-      // Sin await: play() solo termina cuando la reproducción se pausa o acaba
       _player.play().catchError((Object e) {
         debugPrint('Error al reproducir: $e');
       });
