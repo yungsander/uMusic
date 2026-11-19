@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../providers/library_provider.dart';
 import '../widgets/song_tile.dart';
+import '../../../widgets/mini_player.dart';
+import '../../player/providers/player_provider.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -34,6 +36,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         ),
       ),
       body: _body(lib),
+      bottomNavigationBar: const MiniPlayer(),
     );
   }
 
@@ -63,9 +66,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       itemCount: lib.songs.length,
       itemBuilder: (_, i) => SongTile(
         song: lib.songs[i],
-        onTap: () {
-          // Aquí conectaremos el reproductor
-        },
+        onTap: () => context.read<PlayerProvider>().playQueue(lib.songs, i),
       ),
     );
   }

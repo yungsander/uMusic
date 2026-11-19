@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/library/providers/library_provider.dart';
 import 'features/library/screens/library_screen.dart';
+import 'features/player/providers/player_provider.dart';
 
 void main() => runApp(const MusicApp());
 
@@ -11,8 +12,11 @@ class MusicApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => LibraryProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LibraryProvider()),
+        ChangeNotifierProvider(create: (_) => PlayerProvider()),
+      ],
       child: MaterialApp(
         title: 'uMusic',
         debugShowCheckedModeBanner: false,
