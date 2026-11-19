@@ -1,11 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
-import '../providers/library_provider.dart';
-import '../widgets/song_tile.dart';
+import '../../../widgets/aero.dart';
 import '../../../widgets/mini_player.dart';
 import '../../player/providers/player_provider.dart';
-import '../../../widgets/aero.dart';
+import '../providers/library_provider.dart';
+import '../widgets/song_tile.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -26,8 +26,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   Widget build(BuildContext context) {
     final lib = context.watch<LibraryProvider>();
+    // Solo se reconstruye cuando cambia la canción actual
+    final currentId =
+        context.select<PlayerProvider, int?>((p) => p.current?.id);
 
-    return Scaffold(
+    return AeroScaffold(
       appBar: AppBar(
         title: const Text('Canciones',
             style: TextStyle(fontWeight: FontWeight.w600)),
@@ -36,12 +39,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
           child: Divider(height: 1, color: AppColors.border),
         ),
       ),
-      body: _body(lib),
+      body: _body(lib, currentId),
       bottomNavigationBar: const MiniPlayer(),
     );
   }
 
-  Widget _body(LibraryProvider lib) {
+  Widget _body(LibraryProvider lib, int? currentId) {
     if (lib.loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -67,6 +70,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       itemCount: lib.songs.length,
       itemBuilder: (_, i) => SongTile(
         song: lib.songs[i],
+        isCurrent: lib.songs[i].id == currentId,
         onTap: () => context.read<PlayerProvider>().playQueue(lib.songs, i),
       ),
     );
