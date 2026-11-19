@@ -153,11 +153,14 @@ class _MiniProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final player = context.read<PlayerProvider>();
+    final knownMs = context
+        .select<PlayerProvider, int>((p) => p.current?.duration ?? 0);
 
     return StreamBuilder<Duration?>(
       stream: player.durationStream,
       builder: (context, durSnap) {
-        final total = durSnap.data?.inMilliseconds ?? 0;
+        final total =
+            knownMs > 0 ? knownMs : (durSnap.data?.inMilliseconds ?? 0);
         return StreamBuilder<Duration>(
           stream: player.positionStream,
           builder: (context, posSnap) {
