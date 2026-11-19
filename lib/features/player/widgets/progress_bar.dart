@@ -17,21 +17,26 @@ class _ProgressBarState extends State<ProgressBar> {
   @override
   Widget build(BuildContext context) {
     final player = context.read<PlayerProvider>();
+    // Duración que ya conoce la biblioteca: está disponible al instante
+    final knownMs = context
+        .select<PlayerProvider, int>((p) => p.current?.duration ?? 0);
 
     return StreamBuilder<Duration?>(
       stream: player.durationStream,
       builder: (context, durSnap) {
-        final total = durSnap.data ?? Duration.zero;
-        final max = total.inMilliseconds > 0
-            ? total.inMilliseconds.toDouble()
-            : 1.0;
+        final total = knownMs > 0
+            ? Duration(milliseconds: knownMs)
+            : (durSnap.data ?? Duration.zero);
+        final max =
+            total.inMilliseconds > 0 ? total.inMilliseconds.toDouble() : 1.0;
 
         return StreamBuilder<Duration>(
           stream: player.positionStream,
           builder: (context, posSnap) {
             final pos = posSnap.data ?? Duration.zero;
-            final value =
-                (_drag ?? pos.inMilliseconds.toDouble()).clamp(0.0, max).toDouble();
+            final value = (_drag ?? pos.inMilliseconds.toDouble())
+                .clamp(0.0, max)
+                .toDouble();
 
             return Column(
               children: [
