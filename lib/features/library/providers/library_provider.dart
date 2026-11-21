@@ -52,6 +52,9 @@ class LibraryProvider extends ChangeNotifier {
         return;
       }
 
+      // NUEVO: permiso para mostrar la notificación de reproducción
+      await _requestNotificationPermission();
+
       final result = await _query.querySongs(
         sortType: SongSortType.TITLE,
         orderType: OrderType.ASC_OR_SMALLER,
@@ -148,5 +151,17 @@ class LibraryProvider extends ChangeNotifier {
       }
     }
     return false;
+  }
+
+  // NUEVO: Android 13+ pide permiso para mostrar notificaciones
+  Future<void> _requestNotificationPermission() async {
+    if (!Platform.isAndroid) return;
+    try {
+      if (await Permission.notification.isDenied) {
+        await Permission.notification.request();
+      }
+    } catch (e) {
+      debugPrint('Error al pedir permiso de notificaciones: $e');
+    }
   }
 }

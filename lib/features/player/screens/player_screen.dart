@@ -7,6 +7,7 @@ import '../../../core/utils/song_utils.dart';
 import '../../../widgets/aero.dart';
 import '../providers/player_provider.dart';
 import '../widgets/progress_bar.dart';
+import 'queue_screen.dart';
 
 class PlayerScreen extends StatelessWidget {
   const PlayerScreen({super.key});
@@ -31,6 +32,15 @@ class PlayerScreen extends StatelessWidget {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Cola de reproducción',
+            icon: const Icon(Icons.queue_music),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const QueueScreen()),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
