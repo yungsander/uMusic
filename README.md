@@ -23,7 +23,7 @@
 
 ## 📱 Capturas de pantalla
 
-> *Próximamente:*
+> *Próximamente...*
 <!-- 
 <p align="center">
   <img src="ruta/a/captura1.png" width="250" />
