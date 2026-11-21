@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/song_utils.dart';
 import '../../../widgets/aero.dart';
+import '../../../widgets/song_artwork.dart';
 import '../providers/player_provider.dart';
 
 class QueueScreen extends StatefulWidget {
@@ -112,28 +113,7 @@ class _QueueTile extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(10, 10, 6, 10),
       child: Row(
         children: [
-          QueryArtworkWidget(
-            id: song.id,
-            type: ArtworkType.AUDIO,
-            size: 150,
-            keepOldArtwork: true,
-            artworkWidth: 46,
-            artworkHeight: 46,
-            artworkBorder: BorderRadius.circular(14),
-            nullArtworkWidget: Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                color: const Color(0x99FFFFFF),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Icon(
-                Icons.music_note_outlined,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
+          SongArtwork(id: song.id),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

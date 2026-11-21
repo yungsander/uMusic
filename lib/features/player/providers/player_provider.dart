@@ -6,7 +6,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 import '../../../core/utils/song_utils.dart';
 
 class PlayerProvider extends ChangeNotifier {
-  final AudioPlayer _player = AudioPlayer();
+  final AudioPlayer _player;
   final Random _random = Random();
 
   List<SongModel> _queue = [];
@@ -26,7 +26,7 @@ class PlayerProvider extends ChangeNotifier {
   Stream<Duration> get positionStream => _player.positionStream;
   Stream<Duration?> get durationStream => _player.durationStream;
 
-  PlayerProvider() {
+  PlayerProvider(this._player) {
     _player.playerStateStream.listen((state) {
       isPlaying = state.playing;
       notifyListeners();

@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../widgets/aero.dart';
+import '../../../widgets/song_artwork.dart';
 import '../providers/library_provider.dart';
 
 class GroupTile extends StatelessWidget {
@@ -21,28 +21,7 @@ class GroupTile extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(10, 10, 12, 10),
         child: Row(
           children: [
-            QueryArtworkWidget(
-              id: group.songs.first.id,
-              type: ArtworkType.AUDIO,
-              size: 150,
-              keepOldArtwork: true,
-              artworkWidth: 46,
-              artworkHeight: 46,
-              artworkBorder: BorderRadius.circular(14),
-              nullArtworkWidget: Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  color: const Color(0x99FFFFFF),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: const Icon(
-                  Icons.library_music_outlined,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ),
+            SongArtwork(id: group.songs.first.id),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

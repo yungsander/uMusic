@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/song_utils.dart';
 import '../../../widgets/aero.dart';
+import '../../../widgets/song_artwork.dart';
 import '../providers/player_provider.dart';
 import '../widgets/progress_bar.dart';
 import 'queue_screen.dart';
@@ -109,37 +110,12 @@ class PlayerScreen extends StatelessWidget {
             ),
           ],
         ),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: QueryArtworkWidget(
-            key: ValueKey(song.id),
-            id: song.id,
-            type: ArtworkType.AUDIO,
-            size: 800,
-            quality: 100,
-            keepOldArtwork: true,
-            artworkWidth: side,
-            artworkHeight: side,
-            artworkFit: BoxFit.cover,
-            artworkBorder: BorderRadius.circular(26),
-            nullArtworkWidget: Container(
-              width: side,
-              height: side,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(26),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0x66FFFFFF), Color(0x1FFFFFFF)],
-                ),
-              ),
-              child: const Icon(
-                Icons.music_note_outlined,
-                size: 72,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
+        child: SongArtwork(
+          id: song.id,
+          size: side,
+          radius: 26,
+          resolution: 800,
+          iconSize: 72,
         ),
       ),
     );

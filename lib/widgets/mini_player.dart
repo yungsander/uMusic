@@ -6,6 +6,7 @@ import '../core/utils/song_utils.dart';
 import '../features/player/providers/player_provider.dart';
 import '../features/player/screens/player_screen.dart';
 import 'aero.dart';
+import 'song_artwork.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -54,6 +55,7 @@ class MiniPlayer extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
         child: GlassCard(
+          blur: false,
           padding: EdgeInsets.zero,
           radius: 20,
           child: Material(
@@ -69,26 +71,7 @@ class MiniPlayer extends StatelessWidget {
                         horizontal: 12, vertical: 8),
                     child: Row(
                       children: [
-                        QueryArtworkWidget(
-                          id: song.id,
-                          type: ArtworkType.AUDIO,
-                          size: 150,
-                          keepOldArtwork: true,
-                          artworkWidth: 44,
-                          artworkHeight: 44,
-                          artworkBorder: BorderRadius.circular(10),
-                          nullArtworkWidget: Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              border: Border.all(color: AppColors.border),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(Icons.music_note_outlined,
-                                color: AppColors.textSecondary),
-                          ),
-                        ),
+                        SongArtwork(id: song.id, size: 44, radius: 10),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(

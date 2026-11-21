@@ -138,22 +138,41 @@ class AeroScaffold extends StatelessWidget {
   }
 }
 
-/// Panel de vidrio translúcido.
+/// Panel de vidrio translúcido. Con blur: false es más liviano.
 class GlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double radius;
+  final bool blur;
 
   const GlassCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
     this.radius = 24,
+    this.blur = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final shape = BorderRadius.circular(radius);
+
+    final panel = Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        borderRadius: shape,
+        border: Border.all(color: AppColors.border),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: blur
+              ? const [Color(0x55FFFFFF), Color(0x1FFFFFFF)]
+              : const [Color(0xE6F4FBFD), Color(0xCCE3F4F8)],
+        ),
+      ),
+      child: child,
+    );
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: shape,
@@ -167,22 +186,12 @@ class GlassCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: shape,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Container(
-            padding: padding,
-            decoration: BoxDecoration(
-              borderRadius: shape,
-              border: Border.all(color: AppColors.border),
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0x55FFFFFF), Color(0x1FFFFFFF)],
-              ),
-            ),
-            child: child,
-          ),
-        ),
+        child: blur
+            ? BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: panel,
+              )
+            : panel,
       ),
     );
   }
@@ -297,99 +306,7 @@ class _WavePainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class GlossyPill extends StatelessWidget {
-  final Widget child;
-  final VoidCallback? onTap;
-  final bool highlighted;
-  final double radius;
-  final EdgeInsetsGeometry padding;
-
-  const GlossyPill({
-    super.key,
-    required this.child,
-    this.onTap,
-    this.highlighted = false,
-    this.radius = 30,
-    this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final border =
-        highlighted ? const Color(0xFF5DB83A) : const Color(0xFF3BA3CB);
-    final top =
-        highlighted ? const Color(0xFFEFFBE3) : const Color(0xFFE6F6FD);
-    final bottom =
-        highlighted ? const Color(0xFFB9E394) : const Color(0xFFAFDAF2);
-    final shape = BorderRadius.circular(radius);
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: shape,
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x2E0B5C80),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: shape,
-        child: Stack(
-          children: [
-            // Cuerpo: degradado y borde
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: shape,
-                  border: Border.all(color: border, width: 1.6),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [top, bottom],
-                  ),
-                ),
-              ),
-            ),
-            // Brillo en la mitad superior
-            Positioned.fill(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 3, 10, 0),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: FractionallySizedBox(
-                    heightFactor: 0.46,
-                    widthFactor: 1,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: shape,
-                        gradient: const LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0xE6FFFFFF), Color(0x33FFFFFF)],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Contenido con efecto de toque
-            Material(
-              type: MaterialType.transparency,
-              child: InkWell(
-                onTap: onTap,
-                child: Padding(padding: padding, child: child),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
+/// Fila de vidrio sin desenfoque (rápida en listas) con efecto al presionar.
 class GlassTile extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
