@@ -4,7 +4,7 @@
 
 **Un reproductor de música local con estética Frutiger Aero para Android.**
 
-[![Descargar APK](https://shields.io)](https://github.com)
+[![Descargar APK](https://shields.io)](https://github.com/yungsander/uMusic/releases/tag/1.0.0)
 [![Flutter](https://shields.io)](https://flutter.dev)
 
 </div>
