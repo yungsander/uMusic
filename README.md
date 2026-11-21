@@ -24,9 +24,9 @@
 > *Próximamente...*
 <!-- 
 <p align="center">
-  <img width="260" alt="Reproductor uMusic" src="https://github.com" />
+  <img src="ss1.jpg" width="260" alt="Reproductor uMusic" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img width="260" alt="Biblioteca uMusic" src="https://github.com" />
+  <img src="ss2.jpg" width="260" alt="Biblioteca uMusic" />
 </p>
 -->
 
