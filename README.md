@@ -21,14 +21,11 @@
 
 ## 📱 Capturas de pantalla
 
-> *Próximamente...*
-<!-- 
 <p align="center">
   <img src="ss1.jpg" width="260" alt="Reproductor uMusic" />
   &nbsp;&nbsp;&nbsp;&nbsp;
   <img src="ss2.jpg" width="260" alt="Biblioteca uMusic" />
 </p>
--->
 
 ---
 
