@@ -6,6 +6,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/song_utils.dart';
 import '../../../widgets/aero.dart';
 import '../../../widgets/song_artwork.dart';
+import '../../collections/providers/playlists_provider.dart';
+import '../../collections/widgets/song_options_sheet.dart';
 import '../providers/player_provider.dart';
 import '../widgets/progress_bar.dart';
 import 'queue_screen.dart';
@@ -19,6 +21,7 @@ class PlayerScreen extends StatelessWidget {
     final song = player.current;
     if (song == null) return const AeroScaffold(body: SizedBox.shrink());
 
+    final isFav = context.watch<PlaylistsProvider>().isFavorite(song.id);
     final screen = MediaQuery.of(context).size;
     final side = (screen.width - 64).clamp(0.0, screen.height * 0.4).toDouble();
 
@@ -35,6 +38,11 @@ class PlayerScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
+            tooltip: 'Agregar a playlist',
+            icon: const Icon(Icons.playlist_add),
+            onPressed: () => showPlaylistPicker(context, song),
+          ),
+          IconButton(
             tooltip: 'Cola de reproducción',
             icon: const Icon(Icons.queue_music),
             onPressed: () => Navigator.of(context).push(
@@ -50,35 +58,59 @@ class PlayerScreen extends StatelessWidget {
             _artwork(song, side, player.isPlaying),
             const SizedBox(height: 28),
             GlassCard(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+              padding: const EdgeInsets.fromLTRB(20, 16, 12, 12),
               radius: 28,
               child: Column(
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      song.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              song.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              song.artistName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      song.artistName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: AppColors.textSecondary,
+                      IconButton(
+                        tooltip: isFav
+                            ? 'Quitar de favoritos'
+                            : 'Agregar a favoritos',
+                        onPressed: () => context
+                            .read<PlaylistsProvider>()
+                            .toggleFavorite(song.id),
+                        icon: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          transitionBuilder: (child, anim) =>
+                              ScaleTransition(scale: anim, child: child),
+                          child: Icon(
+                            isFav ? Icons.favorite : Icons.favorite_border,
+                            key: ValueKey(isFav),
+                            color:
+                                isFav ? kHeartColor : AppColors.textSecondary,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   const ProgressBar(),

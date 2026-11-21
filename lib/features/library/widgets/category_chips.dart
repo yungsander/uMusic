@@ -8,6 +8,8 @@ class CategoryChips extends StatelessWidget {
 
   static const _labels = {
     LibraryTab.songs: 'Canciones',
+    LibraryTab.favorites: 'Favoritos',
+    LibraryTab.playlists: 'Playlists',
     LibraryTab.albums: 'Álbumes',
     LibraryTab.artists: 'Artistas',
     LibraryTab.genres: 'Géneros',

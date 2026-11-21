@@ -1,8 +1,12 @@
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:material_ui/material_ui.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../widgets/aero.dart';
 import '../../../widgets/song_artwork.dart';
+import '../../collections/providers/playlists_provider.dart';
+import '../../collections/widgets/song_options_sheet.dart';
 
 class SongTile extends StatelessWidget {
   final SongModel song;
@@ -33,10 +37,17 @@ class SongTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isFav = context
+        .select<PlaylistsProvider, bool>((p) => p.isFavorite(song.id));
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
       child: GlassTile(
         onTap: onTap,
+        onLongPress: () {
+          HapticFeedback.mediumImpact();
+          showSongOptions(context, song);
+        },
         highlighted: isCurrent,
         padding: const EdgeInsets.fromLTRB(10, 10, 16, 10),
         child: Row(
@@ -71,6 +82,11 @@ class SongTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
+            if (isFav)
+              const Padding(
+                padding: EdgeInsets.only(right: 6),
+                child: Icon(Icons.favorite, size: 16, color: kHeartColor),
+              ),
             Text(
               _format(song.duration),
               style: const TextStyle(

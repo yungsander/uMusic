@@ -118,6 +118,12 @@ class PlayerProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> playShuffled(List<SongModel> songs) async {
+    if (songs.isEmpty) return;
+    shuffle = true;
+    await playQueue(songs, _random.nextInt(songs.length));
+  }
+
   void togglePlay() => isPlaying ? _player.pause() : _player.play();
   Future<void> next() => _player.seekToNext();
   Future<void> previous() => _player.seekToPrevious();

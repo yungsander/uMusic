@@ -310,6 +310,7 @@ class _WavePainter extends CustomPainter {
 class GlassTile extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final bool highlighted;
   final double radius;
   final EdgeInsetsGeometry padding;
@@ -318,6 +319,7 @@ class GlassTile extends StatefulWidget {
     super.key,
     required this.child,
     this.onTap,
+    this.onLongPress,
     this.highlighted = false,
     this.radius = 22,
     this.padding = const EdgeInsets.all(10),
@@ -340,6 +342,7 @@ class _GlassTileState extends State<GlassTile> {
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
       onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
       child: AnimatedScale(
         scale: _pressed ? 0.97 : 1.0,
         duration: const Duration(milliseconds: 120),

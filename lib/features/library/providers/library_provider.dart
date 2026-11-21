@@ -5,7 +5,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../core/utils/text_utils.dart';
 
-enum LibraryTab { songs, albums, artists, genres }
+enum LibraryTab { songs, favorites, playlists, albums, artists, genres }
 
 class SongGroup {
   final String name;
@@ -24,9 +24,11 @@ class LibraryProvider extends ChangeNotifier {
 
   LibraryTab tab = LibraryTab.songs;
   String query = '';
+  String _normQuery = '';
 
   final Map<LibraryTab, List<SongGroup>> _groups = {};
   final Map<int, String> _haystack = {};
+  final Map<int, SongModel> _byId = {};
 
   void setTab(LibraryTab t) {
     tab = t;
@@ -36,8 +38,25 @@ class LibraryProvider extends ChangeNotifier {
 
   void setQuery(String q) {
     query = q;
+    _normQuery = normalize(q);
     _applyFilter();
     notifyListeners();
+  }
+
+  /// Convierte identificadores en canciones, omitiendo las que ya no existen.
+  List<SongModel> songsFor(Iterable<int> ids) {
+    final result = <SongModel>[];
+    for (final id in ids) {
+      final song = _byId[id];
+      if (song != null) result.add(song);
+    }
+    return result;
+  }
+
+  /// Indica si una canción coincide con la búsqueda actual.
+  bool matchesQuery(SongModel s) {
+    if (_normQuery.isEmpty) return true;
+    return (_haystack[s.id] ?? '').contains(_normQuery);
   }
 
   Future<void> load() async {
@@ -52,7 +71,6 @@ class LibraryProvider extends ChangeNotifier {
         return;
       }
 
-      // NUEVO: permiso para mostrar la notificación de reproducción
       await _requestNotificationPermission();
 
       final result = await _query.querySongs(
@@ -82,7 +100,9 @@ class LibraryProvider extends ChangeNotifier {
 
   void _buildIndex() {
     _haystack.clear();
+    _byId.clear();
     for (final s in songs) {
+      _byId[s.id] = s;
       _haystack[s.id] = normalize(
         '${s.title} ${_clean(s.artist, '')} ${_clean(s.album, '')}',
       );
@@ -118,12 +138,13 @@ class LibraryProvider extends ChangeNotifier {
   }
 
   void _applyFilter() {
-    final q = normalize(query);
+    final q = _normQuery;
     if (tab == LibraryTab.songs) {
       visibleSongs = q.isEmpty
           ? songs
           : songs.where((s) => (_haystack[s.id] ?? '').contains(q)).toList();
     } else {
+      // Favoritos y playlists se filtran en su propia vista
       final all = _groups[tab] ?? const <SongGroup>[];
       visibleGroups = q.isEmpty
           ? all
@@ -153,7 +174,7 @@ class LibraryProvider extends ChangeNotifier {
     return false;
   }
 
-  // NUEVO: Android 13+ pide permiso para mostrar notificaciones
+  // Android 13+ pide permiso para mostrar notificaciones
   Future<void> _requestNotificationPermission() async {
     if (!Platform.isAndroid) return;
     try {

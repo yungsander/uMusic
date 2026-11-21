@@ -1,8 +1,13 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/text_utils.dart';
 import '../../../widgets/aero.dart';
 import '../../../widgets/mini_player.dart';
+import '../../collections/providers/playlists_provider.dart';
+import '../../collections/screens/playlist_screen.dart';
+import '../../collections/widgets/name_dialog.dart';
+import '../../collections/widgets/playlist_tile.dart';
 import '../../player/providers/player_provider.dart';
 import '../providers/library_provider.dart';
 import '../widgets/category_chips.dart';
@@ -96,26 +101,179 @@ class _LibraryScreenState extends State<LibraryScreen> {
       return _message('No se encontraron canciones');
     }
 
-    if (lib.tab == LibraryTab.songs) {
-      if (lib.visibleSongs.isEmpty) {
-        return _message('Sin resultados para «${lib.query}»');
-      }
-      return ListView.builder(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.only(top: 4, bottom: 12),
-        itemCount: lib.visibleSongs.length,
-        itemBuilder: (_, i) {
-          final song = lib.visibleSongs[i];
-          return SongTile(
-            song: song,
-            isCurrent: song.id == currentId,
-            onTap: () =>
-                context.read<PlayerProvider>().playQueue(lib.visibleSongs, i),
-          );
-        },
+    switch (lib.tab) {
+      case LibraryTab.songs:
+        return _songsView(lib, currentId);
+      case LibraryTab.favorites:
+        return _favoritesView(lib, currentId);
+      case LibraryTab.playlists:
+        return _playlistsView(lib);
+      case LibraryTab.albums:
+      case LibraryTab.artists:
+      case LibraryTab.genres:
+        return _groupsView(lib);
+    }
+  }
+
+  // ---------- Canciones ----------
+
+  Widget _songsView(LibraryProvider lib, int? currentId) {
+    if (lib.visibleSongs.isEmpty) {
+      return _message('Sin resultados para «${lib.query}»');
+    }
+    return ListView.builder(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.only(top: 4, bottom: 12),
+      itemCount: lib.visibleSongs.length,
+      itemBuilder: (_, i) {
+        final song = lib.visibleSongs[i];
+        return SongTile(
+          song: song,
+          isCurrent: song.id == currentId,
+          onTap: () =>
+              context.read<PlayerProvider>().playQueue(lib.visibleSongs, i),
+        );
+      },
+    );
+  }
+
+  // ---------- Favoritos ----------
+
+  Widget _favoritesView(LibraryProvider lib, int? currentId) {
+    final favoriteIds = context.watch<PlaylistsProvider>().favoriteIds;
+    final songs =
+        lib.songsFor(favoriteIds).where(lib.matchesQuery).toList();
+
+    if (songs.isEmpty) {
+      return _message(
+        favoriteIds.isEmpty
+            ? 'Aún no tienes favoritos.\nMantén presionada una canción para agregarla.'
+            : 'Sin resultados para «${lib.query}»',
       );
     }
+    return ListView.builder(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.only(top: 4, bottom: 12),
+      itemCount: songs.length,
+      itemBuilder: (_, i) {
+        final song = songs[i];
+        return SongTile(
+          song: song,
+          isCurrent: song.id == currentId,
+          onTap: () => context.read<PlayerProvider>().playQueue(songs, i),
+        );
+      },
+    );
+  }
 
+  // ---------- Playlists ----------
+
+  Widget _playlistsView(LibraryProvider lib) {
+    final collections = context.watch<PlaylistsProvider>();
+    final q = normalize(lib.query);
+    final items = collections.playlists
+        .where((p) => q.isEmpty || normalize(p.name).contains(q))
+        .toList();
+
+    return ListView.builder(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.only(top: 4, bottom: 12),
+      itemCount: items.length + 1,
+      itemBuilder: (_, i) {
+        if (i == 0) return _newPlaylistTile(collections);
+
+        final p = items[i - 1];
+        final songs = lib.songsFor(p.songIds);
+        return PlaylistTile(
+          playlist: p,
+          coverSongId: songs.isEmpty ? null : songs.first.id,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => PlaylistScreen(playlistId: p.id),
+            ),
+          ),
+          onRename: () async {
+            final name = await promptName(
+              context,
+              title: 'Renombrar playlist',
+              initial: p.name,
+            );
+            if (name != null) collections.renamePlaylist(p.id, name);
+          },
+          onDelete: () => _confirmDelete(p, collections),
+        );
+      },
+    );
+  }
+
+  Widget _newPlaylistTile(PlaylistsProvider collections) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+      child: GlassTile(
+        onTap: () async {
+          final name = await promptName(
+            context,
+            title: 'Nueva playlist',
+            confirmLabel: 'Crear',
+          );
+          if (name != null) collections.createPlaylist(name);
+        },
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                color: AppColors.primary.withValues(alpha: 0.18),
+              ),
+              child: const Icon(Icons.add, color: AppColors.primary),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Nueva playlist',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(
+    Playlist playlist,
+    PlaylistsProvider collections,
+  ) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Eliminar playlist'),
+        content: Text(
+          'Se eliminará «${playlist.name}». '
+          'Las canciones no se borran de tu teléfono.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) collections.deletePlaylist(playlist.id);
+  }
+
+  // ---------- Álbumes, artistas y géneros ----------
+
+  Widget _groupsView(LibraryProvider lib) {
     if (lib.visibleGroups.isEmpty) {
       return _message('Sin resultados para «${lib.query}»');
     }

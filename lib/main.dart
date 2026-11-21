@@ -6,6 +6,7 @@ import 'features/library/providers/library_provider.dart';
 import 'features/library/screens/library_screen.dart';
 import 'features/player/providers/player_provider.dart';
 import 'features/player/services/audio_handler.dart';
+import 'features/collections/providers/playlists_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +31,7 @@ class MusicApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LibraryProvider()),
+        ChangeNotifierProvider(create: (_) => PlaylistsProvider()),
         ChangeNotifierProvider(
           create: (_) => PlayerProvider(audioHandler.player),
         ),
