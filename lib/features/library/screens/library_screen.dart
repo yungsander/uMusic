@@ -5,7 +5,11 @@ import '../../../widgets/aero.dart';
 import '../../../widgets/mini_player.dart';
 import '../../player/providers/player_provider.dart';
 import '../providers/library_provider.dart';
+import '../widgets/category_chips.dart';
+import '../widgets/group_tile.dart';
+import '../widgets/search_field.dart';
 import '../widgets/song_tile.dart';
+import 'group_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -26,25 +30,50 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   Widget build(BuildContext context) {
     final lib = context.watch<LibraryProvider>();
-    // Solo se reconstruye cuando cambia la canción actual
     final currentId =
         context.select<PlayerProvider, int?>((p) => p.current?.id);
 
     return AeroScaffold(
       appBar: AppBar(
-        title: const Text('Canciones',
-            style: TextStyle(fontWeight: FontWeight.w600)),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+        title: const Text(
+          'Mi música',
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
-      body: _body(lib, currentId),
+      body: Column(
+        children: [
+          const SearchField(),
+          const CategoryChips(),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: KeyedSubtree(
+                key: ValueKey(lib.tab),
+                child: _content(lib, currentId),
+              ),
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: const MiniPlayer(),
     );
   }
 
-  Widget _body(LibraryProvider lib, int? currentId) {
+  Widget _message(String text) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 15,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+      );
+
+  Widget _content(LibraryProvider lib, int? currentId) {
     if (lib.loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -64,15 +93,45 @@ class _LibraryScreenState extends State<LibraryScreen> {
       );
     }
     if (lib.songs.isEmpty) {
-      return const Center(child: Text('No se encontraron canciones'));
+      return _message('No se encontraron canciones');
+    }
+
+    if (lib.tab == LibraryTab.songs) {
+      if (lib.visibleSongs.isEmpty) {
+        return _message('Sin resultados para «${lib.query}»');
+      }
+      return ListView.builder(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.only(top: 4, bottom: 12),
+        itemCount: lib.visibleSongs.length,
+        itemBuilder: (_, i) {
+          final song = lib.visibleSongs[i];
+          return SongTile(
+            song: song,
+            isCurrent: song.id == currentId,
+            onTap: () =>
+                context.read<PlayerProvider>().playQueue(lib.visibleSongs, i),
+          );
+        },
+      );
+    }
+
+    if (lib.visibleGroups.isEmpty) {
+      return _message('Sin resultados para «${lib.query}»');
     }
     return ListView.builder(
-      itemCount: lib.songs.length,
-      itemBuilder: (_, i) => SongTile(
-        song: lib.songs[i],
-        isCurrent: lib.songs[i].id == currentId,
-        onTap: () => context.read<PlayerProvider>().playQueue(lib.songs, i),
-      ),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.only(top: 4, bottom: 12),
+      itemCount: lib.visibleGroups.length,
+      itemBuilder: (_, i) {
+        final group = lib.visibleGroups[i];
+        return GroupTile(
+          group: group,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => GroupScreen(group: group)),
+          ),
+        );
+      },
     );
   }
 }
