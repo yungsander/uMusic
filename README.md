@@ -1,5 +1,3 @@
-<div align="center">
-
 # 💿 uMusic
 
 **Un reproductor de música local con estética Frutiger Aero para Android.**
@@ -26,9 +24,10 @@
 > *Próximamente...*
 <!-- 
 <p align="center">
-  <img src="ruta/a/captura1.png" width="250" />
-  <img src="ruta/a/captura2.png" width="250" />
-</p> 
+  <img width="260" alt="Reproductor uMusic" src="https://github.com" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img width="260" alt="Biblioteca uMusic" src="https://github.com" />
+</p>
 -->
 
 ---
