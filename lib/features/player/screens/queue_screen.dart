@@ -168,14 +168,6 @@ class _QueueTile extends StatelessWidget {
               width: 40,
               height: 40,
               child: Icon(Icons.graphic_eq, color: AppColors.primary),
-            )
-          else
-            IconButton(
-              constraints: const BoxConstraints.tightFor(width: 40, height: 40),
-              padding: EdgeInsets.zero,
-              iconSize: 20,
-              icon: const Icon(Icons.close, color: AppColors.textSecondary),
-              onPressed: onRemove,
             ),
           ReorderableDragStartListener(
             index: index,
@@ -195,11 +187,11 @@ class _QueueTile extends StatelessWidget {
           ? tile
           : Dismissible(
               key: ValueKey('dismiss-${song.id}'),
-              direction: DismissDirection.endToStart,
+              direction: DismissDirection.startToEnd,
               onDismissed: (_) => onRemove?.call(),
               background: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 24),
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 24),
                 decoration: BoxDecoration(
                   color: const Color(0x40E53935),
                   borderRadius: BorderRadius.circular(22),
